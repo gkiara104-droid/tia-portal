@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#f29100"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>Simulador PLC S7-1200 · KOP</title><style>
+:root{--bg:#f1f3f5;--pn:#fff;--tx:#1d2733;--bd:#cdd4db;--hd:#e7ebef;--ac:#0a6ebd;--w:#4a5561;--on:#16a34a;--rd:#d33;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}body{margin:0;font:13px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+input,select,button{font:inherit;color:inherit;background:#fff;border:1px solid var(--bd);border-radius:3px;padding:2px 6px}button{cursor:pointer}button:hover{background:#eaf3fb}
+#top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#fff;border-bottom:3px solid #f29100;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:5px 10px}
+#st{font-weight:700;padding:2px 8px;border-radius:3px;background:#6b7580;color:#fff}#st.r{background:var(--on)}
+#cr{font:700 15px monospace;background:#1d2733;color:#7f7;padding:1px 6px;border-radius:3px}#cr.z{color:#f66}
+details{position:relative}details>div{position:absolute;right:0;background:#fff;border:1px solid var(--bd);padding:6px;z-index:9;white-space:nowrap}details label{display:block}
+#ws{display:flex;flex-wrap:wrap;gap:8px;padding:8px;align-items:flex-start}
+.pn{background:var(--pn);border:1px solid var(--bd);resize:both;overflow:hidden;min-width:270px;max-width:100%;height:460px;display:flex;flex-direction:column}
+.pn.c{height:auto!important;resize:none}.pn.c .bd{display:none}.pn.h{display:none}
+.hd{background:var(--hd);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;padding:3px 6px}.hd button{padding:0 5px;background:transparent;border-color:transparent}
+.bd{flex:1;overflow:auto;padding:6px}
+@media(max-width:760px){.pn{width:100%!important}}
+#tbar{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;position:sticky;top:-6px;background:#fff;z-index:2;padding:4px 0;border-bottom:1px solid var(--bd)}#tbar button{font-family:monospace;font-size:12px}
+.net{border:1px solid var(--bd);margin-bottom:10px;padding:6px 8px}.nh{display:flex;gap:6px;align-items:center;margin-bottom:4px}.nh b{background:var(--hd);padding:1px 8px}.nh input{flex:1;border:0;border-bottom:1px solid var(--bd)}
+.lad{display:flex;align-items:flex-start;overflow:auto;padding:4px 0 10px;min-height:60px}.rail{width:4px;align-self:stretch;background:var(--w);flex:none}.ser{display:flex;align-items:flex-start}
+u{display:block;flex:1;height:2px;background:var(--w);text-decoration:none}.fill{min-width:14px;margin-top:33px}.lad>.fill{min-width:60px}.fill.ro{background:var(--on)}
+.el{display:flex;flex-direction:column;flex:none;cursor:pointer}.el.sel{outline:2px solid var(--ac);outline-offset:1px;background:#e8f2fb}
+.lab{height:22px;display:flex;justify-content:center;gap:2px}.lab input{width:76px;font-size:11px;text-align:center;border:0;border-bottom:1px dotted #8a96a3;background:transparent;color:#0b7285;padding:0}.lab input.w4{width:52px}
+.sym{display:flex;align-items:center;height:24px;width:100%;min-width:76px}
+b.k{display:flex;align-items:center;justify-content:center;width:20px;height:22px;border:solid var(--w);border-width:0 2px;font-size:11px;color:var(--w);flex:none}b.co{border-radius:50%;width:28px;height:24px}
+.sym select{width:46px;height:24px;font-weight:700;text-align:center;border:2px solid var(--w);border-radius:0;padding:0}
+.el.li .wl,.el.ro .wr{background:var(--on)}.el.ro b.k{border-color:var(--on);color:var(--on)}
+.fb{flex-direction:row}.stub{width:14px;flex:none;margin-top:33px}
+.bx{border:1px solid var(--w);width:190px;font-size:11px;background:#fff}.bh{height:21px;display:flex;align-items:center;gap:3px;padding:0 3px;background:var(--hd);font-weight:700}.bh input{flex:1;min-width:0;border:0;border-bottom:1px dotted #8a96a3;background:transparent;color:#0b7285;padding:0;font-size:11px}
+.pr{height:24px;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:0 3px}.pr input{width:56px;font-size:11px;padding:0 2px}.lv{color:var(--on);min-width:30px}
+.br{display:flex;flex-direction:column;position:relative;flex:none}.br::before,.br::after{content:'';position:absolute;top:33px;bottom:12px;width:2px;background:var(--w)}.br::before{left:0}.br::after{right:0}.br.o::after{display:none}.brr{display:flex;align-items:flex-start}
+#ac{position:fixed;z-index:30;background:#fff;border:1px solid var(--ac);max-height:220px;overflow:auto;font-size:12px;min-width:160px}#ac div{padding:2px 8px;cursor:pointer}#ac div.h,#ac div:hover{background:#cfe5f7}#ac small{color:#6b7580;margin-left:6px}
+.bad{outline:2px solid var(--rd)}
+.io{display:flex;align-items:center;gap:5px;margin:3px 0}.io button.on{background:#f29100;color:#000}
+.dot{width:14px;height:14px;border-radius:50%;background:#aab2ba;display:inline-block;border:1px solid #333}.dot.on{background:#2c5;box-shadow:0 0 6px #2c5}.dot.q.on{background:#fc0;box-shadow:0 0 8px #fc0}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:1px}td input{width:100%;border:0}td select{border:0;width:100%}th{background:var(--hd);text-align:left;padding:2px 5px}
+code{background:var(--bg);padding:0 3px}.ok{color:var(--on)}.ko{color:var(--rd)}#mqs svg{width:100%;max-height:200px;background:#f6f8fa}
+#p_en{height:280px}#tx{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}.tt{flex:1;min-width:260px}.ph{max-width:min(520px,100%);flex:none;border:1px solid var(--bd);cursor:zoom-in}.ph.z{max-width:100%;width:100%;cursor:zoom-out}</style></head><body>
+<div id="top"><b>⚙ PLC S7-1200 · KOP</b><select id="sel"></select><button id="bc">Compilar</button><button id="br">▶ RUN</button><button id="bs">■ STOP</button><span id="st">STOP</span>
+<select id="spd"><option value="1">×1</option><option value="5">×5</option><option value="10">×10</option></select>
+<span id="crw">⏱ <span id="cr">2:00:00</span> <button id="c1">▶/⏸</button><button id="c0">↺</button></span><button id="ex" title="Descarga tu programa y tablas">⬇ Copia</button><button id="im">⬆ Restaurar</button><input type="file" id="fi" accept=".json" hidden><details><summary>Ver</summary><div id="vw"></div></details></div>
+<div id="ws"></div><datalist id="dl"></datalist>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let mem={},inp={},tm={},sim=0,first=1,run=false,plant={},tst=null,last=performance.now();
+const Q=a=>mem['%Q'+a]|0;
+const lamp=(x,y,on,c)=>`<circle cx="${x}" cy="${y}" r="13" fill="${on?c:'#555'}" stroke="#111"/>`;
+const I=n=>`%I${(n-1)>>3}.${(n-1)&7}`,O=n=>`%Q${(n-1)>>3}.${(n-1)&7}`;
+const bt=(n,l,k,d)=>({a:I(n),n:'S'+n,l,k:k||'b',d}),au=(n,l)=>({a:I(n),n:'S'+n,l,k:'a'}),ho=(n,l,c)=>[O(n),'H'+n+' '+l,c],yo=(n,l,c)=>[O(n),'Y'+n+' '+l,c];
+const mk=(id,name,txt,io,out,ax,comps)=>{ax=ax||[];return{id,name,txt,io,out,ax,comps:(comps||[]).map(t=>({t})),init:()=>ax.map(x=>x.p||0),
+ step(s,dt){ax.forEach((x,i)=>{const f=mem[x.f]|0,b=x.sp?!f:mem[x.b]|0,d=x.v*dt/1000;if(f&&!b)s[i]=Math.min(1,s[i]+d);else if(b&&!f)s[i]=Math.max(0,s[i]-d);const n=x.nc?1:0;if(x.sf)inp[I(x.sf)]=(s[i]>=1?1:0)^n;if(x.sb)inp[I(x.sb)]=(s[i]<=0?1:0)^n})},
+ draw(s){const n=ax.length;let g=`<svg viewBox="0 0 300 ${30+n*26+Math.ceil(out.length/4)*38}">`;ax.forEach((x,i)=>{const y=14+i*26;g+=`<text x="2" y="${y+9}" font-size="10" fill="currentColor">${x.l}</text><rect x="95" y="${y}" width="205" height="10" fill="#dde3e8" stroke="#99a"/><rect x="${95+s[i]*185}" y="${y-3}" width="20" height="16" fill="#0a6ebd"/>`});
+  out.forEach((q,i)=>{const cx=30+(i%4)*72,cy=26+n*26+Math.floor(i/4)*38;g+=lamp(cx,cy,mem[q[0]],q[2]||'#fc0')+`<text x="${cx}" y="${cy+25}" text-anchor="middle" font-size="9" fill="currentColor">${q[1].split(' ')[0]}</text>`});return g+'</svg>'}}};
+const sw=[1,2,3,4,5,6,7,8].map(n=>bt(n,'Sensor S'+n,'s'));
+const SC=[
+mk('sem','1 · Semáforos de obra','<b>1 · Semáforos de obra (CLC3401).</b> Tráfico limitado a un carril regulado por semáforos. Al encender con el interruptor S3, ambas luces en rojo (H2 y H3). Dos bucles de inducción (S1, S2) indican presencia de tráfico.<br>La fase verde dura ≥ 20 s antes de que el otro iniciador ponga ambas luces en rojo. Tras 10 s de despeje, se da verde al flujo contrario (H1 o H4). Sin vehículos esperando, el sistema se queda en su último estado. Solo se puede apagar cuando uno de los carriles está en verde.',
+ [bt(3,'Interruptor ON/OFF','s'),bt(1,'Bucle inducción S1','s'),bt(2,'Bucle inducción S2','s')],[ho(1,'Verde A','#2d4'),ho(3,'Rojo A','#e33'),ho(4,'Verde B','#2d4'),ho(2,'Rojo B','#e33')],0,['Ámbar intermitente (1 Hz) 3 s antes de cada cambio a rojo.','Si ambos bucles llevan activos más de 60 s, parpadeo de aviso.']),
+mk('tank','6 · Llenado de tanques','<b>6 · Planta de llenado de tanques (CLC3406).</b> Tres tanques que se vacían a mano en cualquier orden. S1 inicio, S2 parada. Válvulas de llenado H1, H2, H3. Sensores lleno S3, S5, S7 y vacío S4, S6, S8 (dan 1 si detectan líquido).<br>Solo se llena un tanque a la vez, y solo tras señalar su estado vacío; el llenado continúa hasta que se activa su sensor de lleno. Si lleno y vacío de un tanque están activos a la vez: fallo en la lámpara H4, que se borra con parada; reinicio con inicio. Con fallo, no se llena ningún tanque. Condición inicial: tanques llenos.',
+ [bt(1,'Inicio'),bt(2,'Parada'),bt(3,'Tanque 1 lleno','s',1),bt(4,'Tanque 1 (mín.)','s',1),bt(5,'Tanque 2 lleno','s',1),bt(6,'Tanque 2 (mín.)','s',1),bt(7,'Tanque 3 lleno','s',1),bt(8,'Tanque 3 (mín.)','s',1)],[ho(1,'Válvula T1','#29d'),ho(2,'Válvula T2','#29d'),ho(3,'Válvula T3','#29d'),ho(4,'Fallo','#e33')],0,['Contador de ciclos de llenado por tanque (CTU).','Tiempo máximo de llenado 10 s: si se supera, fallo.']),
+mk('plat','8 · Plataforma de cambio','<b>8 · Plataforma de cambio de mercancía (CLC3408).</b> Carro y grúa con imán pasan piezas de la cinta 1 a la 2. Estado inicial: carro a la izquierda, imán arriba y apagado. S1 inicio; S2 apaga en cualquier momento.<br>1) Pieza en S7 → baja imán (K2/H2). 2) S14: para y enciende imán (K5/H5). 3) A los 2 s sube (K1/H1) hasta S13. 4) Carro a la derecha (K3/H3) hasta S15. 5) Baja imán (K2) hasta S14 y lo apaga (pieza en cinta 2). 6) Con S8 activa, a los 2 s sube el imán hasta S13. 7) Carro a la izquierda (K4/H4) hasta S16: estado inicial. Una nueva pieza (S7) repite el proceso.',
+ [bt(1,'Inicio'),bt(2,'Parada'),bt(7,'Pieza en cinta 1','s'),bt(8,'Pieza en cinta 2','s'),au(13,'FC imán arriba'),au(14,'FC imán abajo'),au(15,'FC carro derecha'),au(16,'FC carro izquierda')],[ho(1,'K1 subir'),ho(2,'K2 bajar'),ho(3,'K3 derecha'),ho(4,'K4 izquierda'),ho(5,'K5 imán','#29d')],[{l:'Imán (arriba=dcha)',f:O(1),b:O(2),sf:13,sb:14,v:.5,p:1},{l:'Carro (dcha=dcha)',f:O(3),b:O(4),sf:15,sb:16,v:.4}],['Contador de piezas transferidas.','Si el imán tarda >8 s en bajar o subir, parada por fallo.']),
+mk('alm','9 · Almacén intermedio','<b>9 · Almacén intermedio de piezas (CLC3409).</b> Buffer en una cadena de montaje: entrada detectada por B1 (S3), salida por B2 (S4). Con 30 piezas se apaga el motor M1 (H1) de la cinta; cuando baja de 30 vuelve a conectarse. Con menos de 10 piezas se enciende la lámpara H2. El contador se pone a cero con S5 (calibrado al inicio de turno). S1 inicio, S2 parada.',
+ [bt(1,'Inicio'),bt(2,'Parada'),bt(3,'B1 entrada de pieza'),bt(4,'B2 salida de pieza'),bt(5,'Calibrar (reset)')],[ho(1,'Motor M1 cinta'),ho(2,'Lámpara <10','#e83')],0,['Tercera lámpara cuando haya más de 25 piezas (aviso previo).','Contador que muestre las piezas totales que han pasado en el turno.']),
+mk('oven','14 · Horno: puerta','<b>14 · Horno. Control de la puerta (CLC3414).</b> Válvula 5/3. Estado inicial: puerta cerrada. S1 abre (Y2). S14 (fin de carrera) o S3 (stop) detienen Y2. Tras pararse, la puerta cierra sola con 6 s de retraso (Y1); también se puede cerrar con S2. S3 puede interrumpir el cierre; si se pulsa varias veces y el tiempo total (desde que empezó a cerrar) supera 30 s, S3 se inhibe y cierra sin hacerle caso. El cierre acaba en S13. Si se interrumpe la barrera B1 (S4), el cierre se detiene y continúa al liberarse. S13 y S14 son NC (a prueba de fallos).',
+ [bt(1,'Abrir'),bt(2,'Cerrar'),bt(3,'Stop'),bt(4,'Barrera B1 interrumpida','s'),au(13,'FC cerrada (NC)'),au(14,'FC abierta (NC)')],[yo(1,'Cerrar','#e83'),yo(2,'Abrir','#2d4')],[{l:'Puerta (dcha=abierta)',f:O(2),b:O(1),sf:14,sb:13,nc:1,v:.17}],['Aviso luminoso parpadeante (1 Hz) mientras se cierra.','Contador de aperturas del turno.']),
+mk('bend','15 · Dobladora','<b>15 · Dobladora (CLC3415).</b> 3 cilindros neumáticos. Con la chapa colocada a mano, S1 inicia; la máquina se reposiciona (Y1, Y4, Y6 retraen los 3 pistones). Luego: Y2 extiende pistón 1 (sujeta) → S17: apaga Y2, Y3 extiende pistón 2 (dobla 90°) → S15: apaga Y3, espera 2 s, Y4 sube el pistón 2 → S16: apaga Y4, Y5 extiende pistón 3 (forma final) → S14: apaga Y5, espera 2 s, Y6 retrae → S13: apaga Y6, Y1 retrae pistón 1 → S18: apaga Y1. Con S1 se repite. S2 detiene en cualquier momento; S1 reactiva los movimientos hasta el estado inicial.',
+ [bt(1,'Inicio'),bt(2,'Parada'),au(13,'S13 pistón 3 atrás'),au(14,'S14 pistón 3 delante'),au(15,'S15 pistón 2 abajo'),au(16,'S16 pistón 2 arriba'),au(17,'S17 pistón 1 delante'),au(18,'S18 pistón 1 atrás')],[yo(1,'P1 retrae'),yo(2,'P1 extiende'),yo(3,'P2 extiende'),yo(4,'P2 retrae'),yo(5,'P3 extiende'),yo(6,'P3 retrae')],[{l:'Pistón 1',f:O(2),b:O(1),sf:17,sb:18,v:.6},{l:'Pistón 2',f:O(3),b:O(4),sf:15,sb:16,v:.6},{l:'Pistón 3',f:O(5),b:O(6),sf:14,sb:13,v:.6}],['Contador de piezas dobladas.','Modo ciclo único / continuo con un interruptor.']),
+mk('drill','17 · Taladro','<b>17 · Sistema de taladro (CLC3417).</b> Con S1 el sistema va al estado inicial (Y1, Y3, Y6 retraen los 3 pistones). Luego Y2 extiende el pistón 1 (fija la pieza) → S14: apaga Y2, Y5 extiende el pistón 3 (taladro) → S17: apaga Y5, Y6 retrae → S18: apaga Y6, Y1 libera la pieza → S13: apaga Y1, Y4 levanta (pistón 2) → S16: apaga Y4, Y7 sopla aire 2 s y a la vez Y3 retrae el pistón 2 hasta S15. Se repite solo. S2 para en cualquier momento; S1 vuelve al estado inicial y reanuda.',
+ [bt(1,'Inicio'),bt(2,'Parada'),au(13,'S13 pistón 1 atrás'),au(14,'S14 pistón 1 delante'),au(15,'S15 pistón 2 abajo'),au(16,'S16 pistón 2 arriba'),au(17,'S17 taladro abajo'),au(18,'S18 taladro arriba')],[yo(1,'P1 retrae'),yo(2,'P1 extiende'),yo(3,'P2 retrae'),yo(4,'P2 sube'),yo(5,'Taladro baja'),yo(6,'Taladro sube'),yo(7,'Aire','#29d')],[{l:'Pistón 1',f:O(2),b:O(1),sf:14,sb:13,v:.6},{l:'Pistón 2 (expulsor)',f:O(4),b:O(3),sf:16,sb:15,v:.6},{l:'Taladro',f:O(5),b:O(6),sf:17,sb:18,v:.6}],['Parar tras N piezas (contador).','Dos pasadas de taladro por pieza.']),
+mk('dist','18 · Distribuidor de piezas','<b>18 · Distribuidor selectivo de piezas (CLC3418).</b> Distingue piezas cortas y largas con 3 células S5, S6, S7. S1 enciende el sistema; el distribuidor está en posición A. Pieza larga: los tres sensores se activan a la vez y se queda en A. Pieza corta: las barreras se activan una tras otra → H1 mueve el distribuidor a B (reed S9) un máximo de 5 s y vuelve a A al desconectar H1. Si se detecta una pieza larga, puede volver antes a A.',
+ [bt(1,'Inicio'),bt(2,'Parada'),bt(5,'Célula S5'),bt(6,'Célula S6'),bt(7,'Célula S7'),au(9,'Reed S9 (pos. B)')],[ho(1,'Electroválvula')],[{l:'Distribuidor (dcha=B)',f:O(1),sp:1,sf:9,v:.5}],['Contador de piezas cortas y largas.','Si hay 3 piezas cortas seguidas, aviso luminoso.']),
+mk('door','20 · Control de puerta','<b>20 · Control de puerta (CLC3420).</b> Contactores H1 (cerrar) y H2 (abrir). S1 = automático: pulsación breve de S3 abre (H2) hasta S14; pulsación breve de S4 cierra (H1) hasta S13. S5 interrumpe el movimiento; el obstáculo S7 también. S2 = manual (inching): abre mientras se mantiene S3, cierra mientras se mantiene S4; S13/S14/S7 igual. Si se seleccionan auto y manual a la vez, manda manual. Nunca los dos contactores a la vez. Finales de carrera NC (1 sin pulsar).',
+ [bt(1,'Automático','s'),bt(2,'Manual (inching)','s'),bt(3,'Abrir'),bt(4,'Cerrar'),bt(5,'Halt'),bt(7,'Obstáculo','s'),au(13,'FC cerrada (NC)'),au(14,'FC abierta (NC)')],[ho(1,'Cerrar'),ho(2,'Abrir')],[{l:'Puerta (dcha=abierta)',f:O(2),b:O(1),sf:14,sb:13,nc:1,v:.25}],['Cierre automático a los 5 s de estar abierta.','Luz de aviso parpadeante mientras se mueve.']),
+mk('pump','21 · Control de bombas','<b>21 · Control de bombas, 1 (CLC3421).</b> Cuatro tanques que se vacían a mano, rellenados por 4 bombas desde un depósito común. Sensores lleno/vacío con los interruptores S1–S8 (máx/mín de cada tanque). Bombas: 1 = 3 kW, 2 = 2 kW, 3 = 7 kW, 4 = 5 kW (H5–H8). Al recibir señal de vacío, el tanque se rellena automáticamente sin superar nunca 10 kW de consumo total.',
+ [bt(1,'Tanque 1 máx.','s'),bt(2,'Tanque 1 mín.','s'),bt(3,'Tanque 2 máx.','s'),bt(4,'Tanque 2 mín.','s'),bt(5,'Tanque 3 máx.','s'),bt(6,'Tanque 3 mín.','s'),bt(7,'Tanque 4 máx.','s'),bt(8,'Tanque 4 mín.','s')],[ho(5,'Bomba 1 (3 kW)'),ho(6,'Bomba 2 (2 kW)'),ho(7,'Bomba 3 (7 kW)'),ho(8,'Bomba 4 (5 kW)')],0,['Prioridad por orden de petición (no por número de bomba).','Alarma si un tanque lleva más de 20 s esperando bomba.']),
+mk('air','7 · Habitación de aire limpio','<b>Habitación de aire limpio (CLC3407).</b> Esclusa con 2 puertas correderas; nunca deben estar cerradas a la vez. S1/S2 solicitan entrar por la puerta 1/2. Con S1: la puerta 2 se cierra y, cuando S15 confirma que está cerrada, abre la puerta 1. Al entrar, la barrera B1 da un pulso y a los 3 s se cierra la puerta 1; con S14 (cerrada) se abre la puerta 2. Igual en sentido contrario. Entrar sin pulsar S1/S2 no hace reaccionar las puertas. Con la barrera interrumpida la puerta no se cierra; si se interrumpe cerrando, para y continúa al liberarse. Las lámparas de solicitud (H5/H6) indican petición identificada y se apagan al entrar. Pulsar S1/S2 durante el cambio de aire memoriza la petición. Finales de carrera NC (1 sin pulsar).',
+ [bt(1,'Solicitud 1'),bt(2,'Solicitud 2'),bt(5,'Barrera luz B1'),bt(6,'Barrera luz B2'),au(13,'S13 puerta 1 abierta'),au(14,'S14 puerta 1 cerrada'),au(15,'S15 puerta 2 cerrada'),au(16,'S16 puerta 2 abierta')],[ho(1,'K1 abrir P1'),ho(2,'K2 cerrar P1'),ho(3,'K3 cerrar P2'),ho(4,'K4 abrir P2'),ho(5,'Lámpara S1','#e83'),ho(6,'Lámpara S2','#e83')],[{l:'Puerta 1',f:O(1),b:O(2),sf:13,sb:14,nc:1,v:.4,p:1},{l:'Puerta 2',f:O(4),b:O(3),sf:16,sb:15,nc:1,v:.4}],['Contador de personas que han pasado.','Alarma si una puerta tarda >10 s en moverse.']),
+mk('p3','Práctica 3 · Temporizadores','<b>Práctica 3 · Temporizadores y marcas de ciclo.</b> 1) Luz 1 se enciende a los 5 s de mantener el pulsador (TON). Luz 2 con TOF: se enciende al pulsar y se mantiene 7 s tras soltar. Practica: luz que se activa a los 3 s de pulsar (aunque se suelte) y dura 5 s; intermitente con 2 TON, 2 TOF y TON+TOF; TONR y TP. 2) Marcas de ciclo (p. ej. byte 30) y marca de primer ciclo. 3) Semáforo coches-peatones (RC, AC, VC, RP, VP) con un pulsador: verde de coches hasta pulsar; a los 2 s pasa a ámbar 5 s y rojo 30 s. Verde mínimo 50 s (si se pulsa antes, espera). En los 30 s de rojo: peatones verde 24 s y verde intermitente a 1 Hz 6 s.',
+ [bt(1,'Pulsador')],[[O(1),'Luz1'],[O(2),'Luz2'],[O(3),'RC','#e33'],[O(4),'AC','#fb0'],[O(5),'VC','#2d4'],[O(6),'RP','#e33'],[O(7),'VP','#2d4']],0,['Peatones: tiempos de 5 s de pulsador y verde mínimo editables con marcas.','Contador de peatones que han solicitado paso.'])];
+const newNet=()=>({c:'',items:[],outs:[]});
+let S={sc:0,p:{},t:{},cp:{},cfg:{clk:1,cb:100,sys:1,sb:1}};try{S=Object.assign(S,JSON.parse(localStorage.getItem('plc8')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('plc8',JSON.stringify(S,(k,v)=>k[0]=='_'?undefined:v))}catch(e){}};
+const cur=()=>SC[S.sc],prog=()=>S.p[cur().id]||(S.p[cur().id]=[newNet()]),tags=()=>S.t[cur().id]||(S.t[cur().id]=[]);
+const PN=[['en','Enunciado y complicaciones',100],['ob','Main [OB1] · KOP',58],['mq','Maqueta',40],['tg','Tabla de variables PLC',58],['dg','Diagnóstico y pruebas',40],['cf','CPU 1214C · marcas',40]];
+$('#ws').innerHTML=PN.map(([i,t,w])=>`<section class="pn" id="p_${i}" style="width:calc(${w}% - 8px)"><div class="hd"><b>${t}</b><span><button data-m="l">◀</button><button data-m="r">▶</button><button data-m="c">▾</button><button data-m="x">✕</button></span></div><div class="bd" id="b_${i}"></div></section>`).join('');
+$('#vw').innerHTML=PN.map(([i,t])=>`<label><input type="checkbox" checked data-v="${i}"> ${t}</label>`).join('')+'<label><input type="checkbox" checked data-v="crw"> Crono 2 h</label>';
+$('#sel').innerHTML=SC.map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');$('#sel').value=S.sc;
+$('#b_ob').innerHTML='<div id="tbar"></div><div id="net"></div>';
+$('#b_mq').innerHTML='<div id="mqs"></div><div id="ctl"></div>';
+$('#b_en').innerHTML='<div id="tx"></div><hr><b>Complicaciones (propuestas)</b><div id="cps"></div>';
+$('#b_tg').innerHTML='<table><thead><tr><th>Nombre<th>Tipo<th>Dirección<th>Comentario<th></thead><tbody id="tgb"></tbody></table><div style="margin-top:6px"><button id="addt">＋ Variable (dirección automática)</button> <button id="sug">Sugerir según cableado</button></div>';
+$('#b_dg').innerHTML='<button id="bt">▶ Verificar enunciado básico</button><div id="dgo"></div>';
+$('#b_cf').innerHTML='<label><input type="checkbox" id="kc"> Marcas de ciclo en MB<input id="cb" type="number" style="width:60px"></label><br><label><input type="checkbox" id="ks"> Marcas de sistema en MB<input id="sb" type="number" style="width:60px"></label><p id="cfi"></p><small>En TIA: Propiedades CPU → General → Marcas de sistema y de ciclo. Recompila y carga tras cambiarlo.</small>';
+const BIT=/^%[IQM]\d+\.\d$/,NUM=/^%M[BWD]\d+$/;
+function norm(a){a=(a||'').trim();if(/^(?:[IQM]\d+\.\d|M[BWD]\d+)$/i.test(a))a='%'+a;return a[0]=='%'?a.toUpperCase():a}
+function res(x){x=(x||'').trim();if(!x)return null;const t=tags().find(t=>t.n&&t.n.toLowerCase()==x.toLowerCase());if(t)x=t.a||'';const m=x.match(/^(\S+)\.(Q|QU|QD)$/i);if(m)return 'T:'+m[1]+'.'+m[2].toLowerCase();const n=norm(x);return BIT.test(n)||NUM.test(n)?n:null}
+const get=k=>k[0]=='T'?((tm[k.slice(2).split('.')[0]]||{})[k.split('.').pop()]|0):k[1]=='I'?inp[k]|0:mem[k]|0;
+const set=(k,v)=>{if(k[1]!='I'&&k[0]!='T')mem[k]=v?1:0};
+const gb=a=>{const k=res(a);return k?get(k):0};
+function val(x){x=(x||'').trim();if(/^T#/i.test(x)){let q=0;x.replace(/(\d+(?:\.\d+)?)(ms|s|m|h|d)/gi,(_,n,u)=>{q+=n*{ms:1,s:1e3,m:6e4,h:36e5,d:864e5}[u.toLowerCase()]});return q}
+ if(/^-?\d+(\.\d+)?$/.test(x))return +x;const m=x.match(/^(\S+)\.(ET|CV|PV)$/i);if(m){const t=tm[m[1]]||{},p=m[2].toUpperCase();return p=='ET'?t.e|0:p=='CV'?t.cv|0:t.pv|0}
+ const k=res(x);return k?(NUM.test(k)?mem[k]|0:get(k)):NaN}
+function fb(x,rlo,dt){const n=x.a;if(!n)return false;const T=tm[n]||(tm[n]={e:0,q:0,cv:0,qu:0,qd:0}),pt=val(x.pt)||0,pv=val(x.pv)||0;T.pv=pv;
+ if(x.t=='TON'){T.e=rlo?Math.min(T.e+dt,pt):0;T.q=rlo&&T.e>=pt?1:0}
+ else if(x.t=='TOF'){if(rlo){T.e=0;T.q=1}else if(T.q){T.e=Math.min(T.e+dt,pt);if(T.e>=pt)T.q=0}}
+ else if(x.t=='TP'){if(rlo&&!T.pi&&!T.run){T.run=1;T.e=0}if(T.run){T.e+=dt;T.q=1;if(T.e>=pt){T.run=0;T.q=0;T.e=pt}}else if(!rlo)T.e=0;T.pi=rlo}
+ else{const cu=x.t!='CTD'&&rlo,cd=x.t=='CTD'?rlo:x.t=='CTUD'?gb(x.cd):0;if(cu&&!T.pu)T.cv++;if(cd&&!T.pd)T.cv--;T.pu=cu;T.pd=cd;if(gb(x.r))T.cv=0;if(gb(x.ld))T.cv=pv;T.qu=T.cv>=pv?1:0;T.qd=T.cv<=0?1:0;T.q=x.t=='CTD'?T.qd:T.qu}
+ const o=res(x.o2);if(o&&NUM.test(o))mem[o]=x.t[0]=='T'?T.e:T.cv;return !!T.q}
+function ev(items,rlo,dt){for(const x of items){x._i=rlo;
+ if(x.k=='c'){const k=res(x.a),v=k?get(k):0;let o;if(x.t=='NC')o=!v;else if(x.t=='P'){o=!!v&&!x._p;x._p=v}else if(x.t=='N'){o=!v&&!!x._p;x._p=v}else o=!!v;rlo=rlo&&o}
+ else if(x.k=='m'){const a=val(x.x),b=val(x.y);rlo=rlo&&!!{'>':a>b,'<':a<b,'==':a==b,'>=':a>=b,'<=':a<=b,'<>':a!=b}[x.op||'>']}
+ else if(x.k=='b'){let any=false;for(const r of x.rows)if(ev(r,rlo,dt))any=true;rlo=any}
+ else if(x.k=='f')rlo=fb(x,rlo,dt);
+ x._v=rlo}return rlo}
+function scan(dt){sim+=dt;const c=S.cfg;if(c.clk)[100,200,400,500,800,1000,1600,2000].forEach((p,i)=>mem[`%M${c.cb}.${i}`]=Math.floor(sim/(p/2))%2==0?1:0);
+ if(c.sys){mem[`%M${c.sb}.0`]=first?1:0;mem[`%M${c.sb}.2`]=1;mem[`%M${c.sb}.3`]=0}first=0;
+ for(const n of prog()){const r=ev(n.items,true,dt);n._r=r;for(const o of n.outs){o._i=r;o._v=r;const k=res(o.a);if(!k||k[1]=='I'||k[0]=='T')continue;if(o.t=='C')set(k,r);else if(o.t=='S'){if(r)set(k,1)}else if(o.t=='R'){if(r)set(k,0)}else set(k,!r)}}
+ cur().step(plant,dt);runTest(dt)}
+function runTest(dt){if(!tst)return;if(tst.w>0){tst.w-=dt;return}
+ while(tst.i<tst.s.length){const s=tst.s[tst.i++];if(s[0]=='p')inp[s[1]]=s[2];else if(s[0]=='w'){tst.w=s[1];return}else{const g=get(s[1]),ok=g==s[2];tst.r.push([ok,s[3]+(ok?'':` — esperaba ${s[1]}=${s[2]} y vale ${g} (t=${((sim-tst.t0)/1000).toFixed(1)} s)`)])}}
+ const r=tst.r,bad=r.filter(x=>!x[0]).length;$('#dgo').innerHTML=`<p class="${bad?'ko':'ok'}"><b>${bad?'✖ '+bad+' fallo(s) de '+r.length:'✔ Todo correcto ('+r.length+' comprobaciones)'}</b></p>`+r.map(x=>`<div class="${x[0]?'ok':'ko'}">${x[0]?'✔':'✖'} ${esc(x[1])}</div>`).join('')+(bad?'<p><small>Pista: mira los segmentos en verde/gris (flujo de corriente) y compara con la dirección que falla.</small></p>':'');tst=null;cur().io.forEach(i=>{if(i.k!='a')inp[i.a]=i.k=='nc'||i.d?1:0})}
+function compile(){const e=[],seen=new Set,inst=new Set,E=(n,m)=>e.push(`Segmento ${n+1}: ${m}`);
+ const W=(a,f)=>a.forEach(x=>{if(x.k=='b')x.rows.forEach(r=>W(r,f));else f(x)});
+ prog().forEach(n=>W(n.items,x=>{if(x.k=='f'&&x.a)inst.add(x.a)}));
+ const okv=q=>{q=(q||'').trim();if(!q)return false;const m=q.match(/^(\S+)\.(ET|CV|PV)$/i);return m?inst.has(m[1]):!isNaN(val(q))};
+ prog().forEach((n,ni)=>{W(n.items,x=>{
+  if(x.k=='c'){const k=res(x.a);if(!k)E(ni,`contacto "${x.a||'(vacío)'}" no válido`);else if(k[0]=='T'&&!inst.has(k.slice(2).split('.')[0]))E(ni,`"${x.a}" no existe`)}
+  else if(x.k=='m'){if(!okv(x.x)||!okv(x.y))E(ni,'comparación con operando vacío o no válido')}
+  else if(x.k=='f'){if(!x.a)E(ni,x.t+' sin nombre de instancia');else{if(seen.has(x.a))E(ni,`instancia "${x.a}" repetida`);seen.add(x.a)}
+   if(x.t[0]=='T'&&(!x.pt||isNaN(val(x.pt))))E(ni,`${x.a||x.t}: PT no válido (usa T#5s o ms)`);if(x.t[0]=='C'&&(!x.pv||isNaN(val(x.pv))))E(ni,`${x.a||x.t}: PV no válido`);
+   ['r','ld','cd','o2'].forEach(f=>{if(x[f]&&!res(x[f]))E(ni,`${x.a}: ${f.toUpperCase()} "${x[f]}" no válido`)})}});
+  n.outs.forEach(o=>{const k=res(o.a);if(!k)E(ni,`salida "${o.a||'(vacía)'}" no válida`);else if(k[1]=='I'||k[0]=='T')E(ni,`no se puede escribir en ${k}`)})});
+ $('#dgo').innerHTML=e.length?'<b class="ko">Errores de compilación</b>'+e.map(x=>`<div class="ko">✖ ${esc(x)}</div>`).join(''):'<b class="ok">✔ Compilado sin errores</b>';return e}
+function reset(){mem={};tm={};sim=0;first=1;plant=cur().init();inp={};cur().io.forEach(i=>inp[i.a]=i.k=='nc'||i.d?1:0);cur().step(plant,0)}
+function start(){if(compile().length)return false;reset();run=true;return true}
+const OPS=['>','<','==','>=','<=','<>'];let sel=null;
+const sym=(c,g)=>`<div class="sym"><u class="wl"></u><b class="k ${c}">${g}</b><u class="wr"></u></div>`;
+const lab=(p,v,ph)=>`<div class="lab"><input class="ad" data-p="${p}" data-f="a" value="${esc(v)}" placeholder="${ph}"></div>`;
+const fi=(p,x,f,ph,c)=>`<input class="${c||'ad'}" data-p="${p}" data-f="${f}" value="${esc(x[f])}" placeholder="${ph}">`;
+function fbx(x,p){const t=x.t,T=t[0]=='T',pv=fi(p,x,'pv','10','ad sm');const R=T?[['IN','Q'],['PT '+fi(p,x,'pt','T#5s','ad sm'),'ET '+fi(p,x,'o2','%MD0')]]:t=='CTU'?[['CU','Q'],['R '+fi(p,x,'r','R'),'CV '+fi(p,x,'o2','%MW0')],['PV '+pv,'']]:t=='CTD'?[['CD','Q'],['LD '+fi(p,x,'ld','LD'),'CV '+fi(p,x,'o2','%MW0')],['PV '+pv,'']]:[['CU','QU'],['CD '+fi(p,x,'cd','CD'),'QD'],['R '+fi(p,x,'r','R'),'CV '+fi(p,x,'o2','%MW0')],['LD '+fi(p,x,'ld','LD'),''],['PV '+pv,'']];
+ return `<div class="el fb" data-p="${p}"><u class="stub wl"></u><div class="bx"><div class="bh"><span>${t}</span>${fi(p,x,'a','T1')}<span class="lv" data-n="${esc(x.a)}" data-k="${T?'T':'C'}"></span></div>${R.map(r=>`<div class="pr"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')}</div><u class="stub wr"></u></div>`}
+function elh(x,p,o){if(o)return `<div class="el" data-p="${p}">${lab(p,x.a,'%Q0.0')}${sym('co',{C:'',S:'S',R:'R',NEG:'/'}[x.t])}</div>`;
+ if(x.k=='c')return `<div class="el" data-p="${p}">${lab(p,x.a,'%I0.0')}${sym('',{NO:'',NC:'/',P:'P',N:'N'}[x.t])}</div>`;
+ if(x.k=='m')return `<div class="el" data-p="${p}"><div class="lab">${fi(p,x,'x','a','ad sm w4')}${fi(p,x,'y','b','ad sm w4')}</div><div class="sym"><u class="wl"></u><select data-p="${p}" data-f="op">${OPS.map(q=>`<option${q==x.op?' selected':''}>${esc(q)}</option>`).join('')}</select><u class="wr"></u></div></div>`;
+ if(x.k=='f')return fbx(x,p);
+ return `<div class="br">${x.rows.map((r,ri)=>`<div class="brr">${r.map((y,j)=>elh(y,p+'.'+ri+'.'+j)).join('')}<u class="fill"></u></div>`).join('')}</div>`}
+function ref(p){const a=p.split('.'),n=prog()[a[0]];if(!n)return{};if(a[1]=='o')return{n,arr:n.outs,i:+a[2],x:n.outs[a[2]],out:true};let arr=n.items,i=+a[2];if(a.length>3){const b=arr[i];if(!b||!b.rows)return{};arr=b.rows[a[3]];i=+a[4]}return{n,arr,i,x:arr&&arr[i],top:+a[2],row:a.length>3?+a[3]:-1}}
+function ed(){$('#net').innerHTML=prog().map((n,ni)=>`<div class="net"><div class="nh"><b>Segmento ${ni+1}</b><input data-f="c" data-p="${ni}" value="${esc(n.c)}" placeholder="Comentario"><button data-x="dn" data-p="${ni}">🗑</button></div><div class="lad"><i class="rail"></i><div class="ser">${n.items.map((x,i)=>elh(x,ni+'.i.'+i)).join('')}</div><u class="fill"></u><div class="br o">${n.outs.map((o,i)=>`<div class="brr">${elh(o,ni+'.o.'+i,1)}</div>`).join('')}</div></div></div>`).join('');mark()}
+const mark=()=>$$('#net .el').forEach(e=>e.classList.toggle('sel',e.dataset.p==sel));
+function commit(){const a=document.activeElement;if(a&&a.dataset&&a.dataset.f)a.dispatchEvent(new Event('change',{bubbles:true}))}
+function foc(){mark();const f=$(`#net .el[data-p="${sel}"] input`);if(f)f.focus()}
+function ins(t){commit();const P=prog();let n=P[P.length-1],r={};if(sel){r=ref(sel);if(r.n)n=r.n}const ni=P.indexOf(n);
+ if(['C','S','R','NEG'].includes(t)){n.outs.push({t,a:''});sel=ni+'.o.'+(n.outs.length-1)}
+ else{const f=['TON','TOF','TP','CTU','CTD','CTUD'].includes(t),x=t=='CMP'?{k:'m',op:'>',x:'',y:''}:f?{k:'f',t,a:'',pt:'',pv:''}:{k:'c',t,a:''};
+  if(f&&r.row>=0)return alert('Los bloques van en la línea principal, fuera de las ramas.');
+  if(r.row>=0){n.items[r.top].rows[r.row].splice(r.i+1,0,x);sel=`${ni}.i.${r.top}.${r.row}.${r.i+1}`}
+  else{const at=r.x&&!r.out?r.top+1:n.items.length;n.items.splice(at,0,x);sel=`${ni}.i.${at}`}}
+ save();ed();foc()}
+function par(){commit();const P=prog(),r=sel?ref(sel):{};if(!r.x||r.out)return alert('Selecciona un contacto para ponerle una rama en paralelo.');const n=r.n,ni=P.indexOf(n),nc={k:'c',t:'NO',a:''};
+ if(r.row>=0){const rows=n.items[r.top].rows;rows.push([nc]);sel=`${ni}.i.${r.top}.${rows.length-1}.0`}
+ else{if(r.x.k=='f')return alert('Los bloques no admiten rama paralela directa.');n.items[r.top]={k:'b',rows:[[r.x],[nc]]};sel=`${ni}.i.${r.top}.1.0`}
+ save();ed();foc()}
+function del(){commit();const r=sel?ref(sel):{};if(!r.x)return;r.arr.splice(r.i,1);if(r.row>=0){const n=r.n,b=n.items[r.top];if(!b.rows[r.row].length)b.rows.splice(r.row,1);if(b.rows.length==1)n.items.splice(r.top,1,...b.rows[0]);else if(!b.rows.length)n.items.splice(r.top,1)}sel=null;save();ed()}
+$('#tbar').innerHTML=[['NO','-| |-'],['NC','-|/|-'],['P','-|P|-'],['N','-|N|-'],['CMP','a&gt;b'],['PAR','Rama ∥'],['C','-( )-'],['S','-(S)-'],['R','-(R)-'],['NEG','-(/)-'],['TON','TON'],['TOF','TOF'],['TP','TP'],['CTU','CTU'],['CTD','CTD'],['CTUD','CTUD'],['DEL','🗑 Quitar'],['SEG','＋ Segmento']].map(b=>`<button data-t="${b[0]}">${b[1]}</button>`).join('');
+$('#tbar').addEventListener('mousedown',e=>e.preventDefault());
+$('#tbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t;if(t=='PAR')par();else if(t=='DEL')del();else if(t=='SEG'){prog().push(newNet());save();ed()}else ins(t)});
+const net=$('#net');
+net.addEventListener('change',e=>{const d=e.target.dataset,f=d.f;if(!f)return;if(String(d.p).indexOf('.')<0){prog()[d.p][f]=e.target.value;save();return}const r=ref(d.p);if(!r.x)return;const v=e.target.value;r.x[f]=v;if(r.x.k=='f'&&f=='a'){const l=e.target.closest('.bh').querySelector('.lv');l.dataset.n=v}else if(f!='op')e.target.classList.toggle('bad',!!v&&!res(v)&&isNaN(val(v)));save()});
+net.addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){const P=prog();P.splice(b.dataset.p,1);if(!P.length)P.push(newNet());sel=null;save();ed();return}const el=e.target.closest('.el');if(el){sel=el.dataset.p;mark()}});
+net.addEventListener('focusin',e=>{const el=e.target.closest('.el');if(el){sel=el.dataset.p;mark()}});
+document.addEventListener('keydown',e=>{if(e.key=='Delete'&&sel&&!/INPUT|SELECT/.test(document.activeElement.tagName))del()});
+const AC=document.createElement('div');AC.id='ac';AC.hidden=true;document.body.appendChild(AC);let acE=null,acL=[],acH=-1;
+function opts(q){q=q.toLowerCase();const o=[];tags().forEach(t=>{if(t.n||t.a)o.push({v:t.n||t.a,d:t.a})});
+ const w=a=>a.forEach(x=>{if(x.k=='b')x.rows.forEach(w);else if(x.k=='f'&&x.a)(x.t=='CTUD'?['QU','QD','CV']:x.t[0]=='T'?['Q','ET']:['Q','CV']).forEach(s=>o.push({v:x.a+'.'+s,d:'instancia'}))});prog().forEach(n=>w(n.items));
+ return o.filter(x=>!q||x.v.toLowerCase().includes(q)||(x.d||'').toLowerCase().includes(q)).sort((a,b)=>b.v.toLowerCase().startsWith(q)-a.v.toLowerCase().startsWith(q)).slice(0,14)}
+function acShow(el){acE=el;acL=opts(el.value.trim());acH=-1;if(!acL.length){AC.hidden=true;return}AC.innerHTML=acL.map((o,i)=>`<div data-i="${i}">${esc(o.v)}<small>${esc(o.d||'')}</small></div>`).join('');const r=el.getBoundingClientRect();AC.style.left=r.left+'px';AC.style.top=r.bottom+'px';AC.hidden=false}
+const acHide=()=>{AC.hidden=true};
+function acPick(o){const el=acE;el.value=o.v;acHide();el.dispatchEvent(new Event('change',{bubbles:true}))}
+function nextF(el){const L=$$('#net input'),i=L.indexOf(el);if(L[i+1]){L[i+1].focus();L[i+1].select()}}
+document.addEventListener('input',e=>{if(e.target.matches('#net .ad'))acShow(e.target)});
+document.addEventListener('focusin',e=>{if(e.target.matches('#net .ad:not(.sm)')&&!e.target.value)acShow(e.target);else acHide()});
+document.addEventListener('mousedown',e=>{const d=e.target.closest('#ac div');if(d){e.preventDefault();acPick(acL[d.dataset.i])}});
+document.addEventListener('keydown',e=>{const el=e.target;if(!el.matches||!el.matches('#net input'))return;const open=!AC.hidden&&acE==el;
+ if(open&&(e.key=='ArrowDown'||e.key=='ArrowUp')){e.preventDefault();acH=(acH+(e.key=='ArrowDown'?1:-1)+acL.length)%acL.length;[...AC.children].forEach((c,i)=>c.classList.toggle('h',i==acH));return}
+ if(e.key=='Escape'){acHide();return}if(e.key!='Enter')return;e.preventDefault();const v=el.value.trim();
+ if(open){const q=v.toLowerCase(),pick=acH>=0?acL[acH]:acL.find(o=>o.v.toLowerCase()==q||(o.d||'').toLowerCase()==q)||(acL.length==1?acL[0]:null);if(pick){acPick(pick);return}}
+ acHide();el.dispatchEvent(new Event('change',{bubbles:true}));if(v&&(res(v)||!isNaN(val(v))))nextF(el);else el.classList.add('bad')});
+const TY=a=>/^%MD/i.test(a)?'Time':/^%MW/i.test(a)?'Int':'Bool';
+function nx(a){const m=(a||'').match(/^%?([IQM])([BWD]?)(\d+)(?:\.(\d))?$/i);if(!m)return '';const L=m[1].toUpperCase(),w=m[2].toUpperCase();let by=+m[3];if(w)return `%${L}${w}${by+{B:1,W:2,D:4}[w]}`;let b=+m[4]+1;if(b>7){b=0;by++}return `%${L}${by}.${b}`}
+function tgr(){$('#tgb').innerHTML=tags().map((t,i)=>`<tr data-i="${i}"><td><input data-f="n" value="${esc(t.n)}" placeholder="Nombre"><td><select data-f="y">${['Bool','Int','DInt','Time'].map(y=>`<option${y==(t.y||TY(t.a))?' selected':''}>${y}</option>`).join('')}</select><td><input data-f="a" value="${esc(t.a)}" placeholder="%I0.0"><td><input data-f="c" value="${esc(t.c)}"><td><button data-x="dt">×</button></tr>`).join('')}
+function addRow(){const T=tags(),l=T[T.length-1];T.push({n:'',a:(l&&nx(l.a))||'%I0.0',y:'',c:'',auto:true});save();tgr()}
+$('#tgb').addEventListener('change',e=>{const f=e.target.dataset.f;if(!f)return;const T=tags(),i=+e.target.closest('tr').dataset.i,t=T[i];let v=e.target.value;if(f=='a'){v=norm(v);e.target.value=v;if(v==t.a)return;t.a=v;t.auto=false;for(let j=i+1;j<T.length&&T[j].auto;j++)T[j].a=nx(T[j-1].a);if(T[i+1]&&T[i+1].auto)tgr()}else t[f]=v;save()});
+$('#tgb').addEventListener('keydown',e=>{if(e.key!='Enter'||e.target.tagName!='INPUT')return;e.preventDefault();const rows=$$('#tgb tr'),i=rows.indexOf(e.target.closest('tr')),c=[...rows[i].querySelectorAll('input')].indexOf(e.target);e.target.dispatchEvent(new Event('change',{bubbles:true}));if(i>=tags().length-1)addRow();const r=$$('#tgb tr')[i+1];if(r)r.querySelectorAll('input')[c].focus()});
+$('#tgb').addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){tags().splice(+b.closest('tr').dataset.i,1);save();tgr()}});
+$('#addt').onclick=addRow;
+$('#sug').onclick=()=>{const T=tags(),c=cur();c.io.concat(c.out.map(o=>({a:o[0],n:o[1],l:o[1]}))).forEach(i=>{if(!T.some(t=>norm(t.a)==i.a))T.push({n:(i.n||i.l).replace(/\W+/g,'_'),a:i.a,c:i.l})});save();tgr()};
+function mq(){const c=cur();$('#ctl').innerHTML='<hr><b>Entradas (cableado de la maqueta)</b>'+c.io.map(i=>`<div class="io">${i.k=='a'?`<span class="dot" data-i="${i.a}"></span>`:`<button data-i="${i.a}" data-k="${i.k}"${i.d?' class="on"':''}>${i.n}</button>`}<code>${i.a}</code>${i.l}</div>`).join('')+'<b>Salidas</b>'+c.out.map(o=>`<div class="io"><span class="dot q" data-q="${o[0]}"></span><code>${o[0]}</code>${o[1]}</div>`).join('')}
+const setIn=(b,down)=>{const a=b.dataset.i,k=b.dataset.k;if(k=='b'||k=='nc'){inp[a]=k=='b'?(down?1:0):(down?0:1);b.classList.toggle('on',down)}};
+$('#ctl').addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.k=='s'){inp[b.dataset.i]=inp[b.dataset.i]?0:1;b.classList.toggle('on',!!inp[b.dataset.i])}else setIn(b,true)});
+['pointerup','pointerleave'].forEach(t=>$('#ctl').addEventListener(t,e=>{const b=e.target.closest&&e.target.closest('button');if(b&&b.dataset.k!='s')setIn(b,false)},true));
+function en(){const c=cur();$('#tx').innerHTML='<div class="tt">'+c.txt+'</div>'+`<img class="ph" src="${c.id}.jpg" alt="Maqueta" onerror="this.remove()">`;$('#cps').innerHTML=c.comps.map((x,i)=>`<div class="io"><input type="checkbox" data-c="${i}"${S.cp[c.id+i]?' checked':''}> ${esc(x.t)} ${x.test?`<button data-t="${i}">Verificar</button>`:''}</div>`).join('')}
+$('#cps').addEventListener('click',e=>{const b=e.target.closest('button');if(b)startTest(cur().comps[b.dataset.t].test)});
+$('#cps').addEventListener('change',e=>{S.cp[cur().id+e.target.dataset.c]=e.target.checked;save()});
+function startTest(s){if(!start())return;tst={s,i:0,w:0,r:[],t0:sim}}
+$('#bt').onclick=()=>cur().test?startTest(cur().test):($('#dgo').innerHTML='Esta maqueta aún no tiene prueba automática: compruébala con la maqueta y las luces.');
+$('#br').onclick=()=>{if(!run)start()};$('#bs').onclick=()=>{run=false;tst=null;mem={};tm={}};$('#bc').onclick=compile;
+$('#spd').onchange=()=>{};
+function cfg(){const c=S.cfg;$('#kc').checked=!!c.clk;$('#ks').checked=!!c.sys;$('#cb').value=c.cb;$('#sb').value=c.sb;$('#cfi').innerHTML=(c.clk?`<code>M${c.cb}.0</code> 10 Hz · .1 5 Hz · .2 2,5 Hz · .3 2 Hz · .4 1,25 Hz · <b>.5 1 Hz</b> · .6 0,625 Hz · .7 0,5 Hz<br>`:'')+(c.sys?`Primer ciclo <code>M${c.sb}.0</code> (FirstScan) · Siempre 1 <code>M${c.sb}.2</code> · Siempre 0 <code>M${c.sb}.3</code>`:'')}
+['kc','ks','cb','sb'].forEach(i=>$('#'+i).onchange=()=>{S.cfg={clk:$('#kc').checked,sys:$('#ks').checked,cb:+$('#cb').value||0,sb:+$('#sb').value||0};save();cfg()});
+$('#ws').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;const p=b.closest('.pn'),m=b.dataset.m;if(m=='c')p.classList.toggle('c');else if(m=='x'){p.classList.add('h');$(`[data-v="${p.id.slice(2)}"]`).checked=false}else if(m=='l'&&p.previousElementSibling)p.parentNode.insertBefore(p,p.previousElementSibling);else if(m=='r'&&p.nextElementSibling)p.parentNode.insertBefore(p.nextElementSibling,p)});
+$('#vw').addEventListener('change',e=>{const v=e.target.dataset.v,el=v=='crw'?$('#crw'):$('#p_'+v);v=='crw'?el.style.display=e.target.checked?'':'none':el.classList.toggle('h',!e.target.checked)});
+$('#sel').onchange=()=>{S.sc=+$('#sel').value;save();run=false;tst=null;reset();all()};
+let cr=7200000,crun=0,clast=Date.now();try{const q=JSON.parse(localStorage.getItem('plc8cr')||'null');if(q){cr=q.cr;crun=q.crun;if(crun)cr-=Date.now()-q.t}}catch(e){}const fm=t=>{t=Math.max(0,Math.ceil(t/1000));return`${t/3600|0}:${String(t%3600/60|0).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`};
+$('#c1').onclick=()=>{crun=!crun;clast=Date.now()};$('#c0').onclick=()=>{cr=7200000;crun=0};
+function all(){ed();tgr();mq();en();cfg();$('#dgo').innerHTML=''}
+setInterval(()=>{const n=performance.now(),dt=Math.min(n-last,100)*(+$('#spd').value);last=n;if(run)scan(dt)},20);
+setInterval(()=>{const P=prog();$('#st').textContent=run?'RUN':'STOP';$('#st').className=run?'r':'';
+ $$('#net .el').forEach(e=>{const x=ref(e.dataset.p).x;if(!x)return;e.classList.toggle('li',!!(run&&x._i));e.classList.toggle('ro',!!(run&&x._v))});
+ $$('#net .lad').forEach((l,i)=>{const n=P[i],f=l.querySelector(':scope>.fill');if(f)f.classList.toggle('ro',!!(run&&n&&n._r))});
+ $$('#net .lv').forEach(e=>{const t=tm[e.dataset.n];e.textContent=t?(e.dataset.k=='T'?(t.e/1000).toFixed(1)+'s':t.cv):''});
+ $$('#ctl .dot').forEach(e=>e.classList.toggle('on',!!(e.dataset.q?mem[e.dataset.q]:inp[e.dataset.i])));
+ $('#mqs').innerHTML=cur().draw(plant);
+ if(crun){const t=Date.now();cr-=t-clast;clast=t}$('#cr').textContent=fm(cr);$('#cr').className=cr<=0?'z':''},60);
+setInterval(()=>{try{localStorage.setItem('plc8cr',JSON.stringify({cr,crun,t:Date.now()}))}catch(e){}},1000);
+$('#tx').addEventListener('click',e=>{if(e.target.classList.contains('ph'))e.target.classList.toggle('z')});
+$('#ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem('plc8')||'{}'],{type:'application/json'}));a.download='plc-copia.json';a.click()};
+$('#im').onclick=()=>$('#fi').click();
+$('#fi').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{JSON.parse(t);localStorage.setItem('plc8',t);location.reload()}catch(x){alert('Archivo no válido')}})};
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+reset();all();
+</script></body></html>
