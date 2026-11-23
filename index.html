@@ -32,7 +32,7 @@ b.k{display:flex;align-items:center;justify-content:center;width:20px;height:22p
 .dot{width:14px;height:14px;border-radius:50%;background:#aab2ba;display:inline-block;border:1px solid #333}.dot.on{background:#2c5;box-shadow:0 0 6px #2c5}.dot.q.on{background:#fc0;box-shadow:0 0 8px #fc0}
 table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:1px}td input{width:100%;border:0}td select{border:0;width:100%}th{background:var(--hd);text-align:left;padding:2px 5px}
 code{background:var(--bg);padding:0 3px}.ok{color:var(--on)}.ko{color:var(--rd)}#mqs svg{width:100%;max-height:200px;background:#f6f8fa}
-#p_en{height:280px}#tx{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}.tt{flex:1;min-width:260px}.ph{max-width:min(520px,100%);flex:none;border:1px solid var(--bd);cursor:zoom-in}.ph.z{max-width:100%;width:100%;cursor:zoom-out}</style></head><body>
+#p_en{height:280px}#tx{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}.tt{flex:1;min-width:260px}.ph{max-width:min(520px,100%);flex:none;border:1px solid var(--bd);cursor:zoom-in}.ph.z{max-width:100%;width:100%;cursor:zoom-out}.mac{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}.mac button{background:#eaf3fb;border-color:var(--ac)}.io button[data-k]{padding:1px 6px}.net.nsel{border-color:var(--ac);box-shadow:0 0 0 2px #cfe5f7}.net.nsel .nh b::after{content:' ◀ aquí se inserta';font-weight:400;color:var(--ac)}</style></head><body>
 <div id="top"><b>⚙ PLC S7-1200 · KOP</b><select id="sel"></select><button id="bc">Compilar</button><button id="br">▶ RUN</button><button id="bs">■ STOP</button><span id="st">STOP</span>
 <select id="spd"><option value="1">×1</option><option value="5">×5</option><option value="10">×10</option></select>
 <span id="crw">⏱ <span id="cr">2:00:00</span> <button id="c1">▶/⏸</button><button id="c0">↺</button></span><button id="ex" title="Descarga tu programa y tablas">⬇ Copia</button><button id="im">⬆ Restaurar</button><input type="file" id="fi" accept=".json" hidden><details><summary>Ver</summary><div id="vw"></div></details></div>
@@ -114,8 +114,8 @@ function scan(dt){sim+=dt;const c=S.cfg;if(c.clk)[100,200,400,500,800,1000,1600,
  for(const n of prog()){const r=ev(n.items,true,dt);n._r=r;for(const o of n.outs){o._i=r;o._v=r;const k=res(o.a);if(!k||k[1]=='I'||k[0]=='T')continue;if(o.t=='C')set(k,r);else if(o.t=='S'){if(r)set(k,1)}else if(o.t=='R'){if(r)set(k,0)}else set(k,!r)}}
  cur().step(plant,dt);runTest(dt)}
 function runTest(dt){if(!tst)return;if(tst.w>0){tst.w-=dt;return}
- while(tst.i<tst.s.length){const s=tst.s[tst.i++];if(s[0]=='p')inp[s[1]]=s[2];else if(s[0]=='w'){tst.w=s[1];return}else{const g=get(s[1]),ok=g==s[2];tst.r.push([ok,s[3]+(ok?'':` — esperaba ${s[1]}=${s[2]} y vale ${g} (t=${((sim-tst.t0)/1000).toFixed(1)} s)`)])}}
- const r=tst.r,bad=r.filter(x=>!x[0]).length;$('#dgo').innerHTML=`<p class="${bad?'ko':'ok'}"><b>${bad?'✖ '+bad+' fallo(s) de '+r.length:'✔ Todo correcto ('+r.length+' comprobaciones)'}</b></p>`+r.map(x=>`<div class="${x[0]?'ok':'ko'}">${x[0]?'✔':'✖'} ${esc(x[1])}</div>`).join('')+(bad?'<p><small>Pista: mira los segmentos en verde/gris (flujo de corriente) y compara con la dirección que falla.</small></p>':'');tst=null;cur().io.forEach(i=>{if(i.k!='a')inp[i.a]=i.k=='nc'||i.d?1:0})}
+ while(tst.i<tst.s.length){const s=tst.s[tst.i++];if(s[0]=='p'||s[0]=='t')pst(s);else if(s[0]=='w'){tst.w=s[1];return}else{const g=get(s[1]),ok=g==s[2];tst.r.push([ok,s[3]+(ok?'':` — esperaba ${s[1]}=${s[2]} y vale ${g} (t=${((sim-tst.t0)/1000).toFixed(1)} s)`)])}}
+ const r=tst.r,bad=r.filter(x=>!x[0]).length;$('#dgo').innerHTML=`<p class="${bad?'ko':'ok'}"><b>${bad?'✖ '+bad+' fallo(s) de '+r.length:'✔ Todo correcto ('+r.length+' comprobaciones)'}</b></p>`+r.map(x=>`<div class="${x[0]?'ok':'ko'}">${x[0]?'✔':'✖'} ${esc(x[1])}</div>`).join('')+(bad?'<p><small>Pista: mira los segmentos en verde/gris (flujo de corriente) y compara con la dirección que falla.</small></p>':'');tst=null;rin()}
 function compile(){const e=[],seen=new Set,inst=new Set,E=(n,m)=>e.push(`Segmento ${n+1}: ${m}`);
  const W=(a,f)=>a.forEach(x=>{if(x.k=='b')x.rows.forEach(r=>W(r,f));else f(x)});
  prog().forEach(n=>W(n.items,x=>{if(x.k=='f'&&x.a)inst.add(x.a)}));
@@ -128,9 +128,9 @@ function compile(){const e=[],seen=new Set,inst=new Set,E=(n,m)=>e.push(`Segment
    ['r','ld','cd','o2'].forEach(f=>{if(x[f]&&!res(x[f]))E(ni,`${x.a}: ${f.toUpperCase()} "${x[f]}" no válido`)})}});
   n.outs.forEach(o=>{const k=res(o.a);if(!k)E(ni,`salida "${o.a||'(vacía)'}" no válida`);else if(k[1]=='I'||k[0]=='T')E(ni,`no se puede escribir en ${k}`)})});
  $('#dgo').innerHTML=e.length?'<b class="ko">Errores de compilación</b>'+e.map(x=>`<div class="ko">✖ ${esc(x)}</div>`).join(''):'<b class="ok">✔ Compilado sin errores</b>';return e}
-function reset(){mem={};tm={};sim=0;first=1;plant=cur().init();inp={};cur().io.forEach(i=>inp[i.a]=i.k=='nc'||i.d?1:0);cur().step(plant,0)}
+function reset(){mem={};tm={};sim=0;first=1;plant=cur().init();inp={};rin(1);cur().step(plant,0)}
 function start(){if(compile().length)return false;reset();run=true;return true}
-const OPS=['>','<','==','>=','<=','<>'];let sel=null;
+const OPS=['>','<','==','>=','<=','<>'];let sel=null,selN=null;
 const sym=(c,g)=>`<div class="sym"><u class="wl"></u><b class="k ${c}">${g}</b><u class="wr"></u></div>`;
 const lab=(p,v,ph)=>`<div class="lab"><input class="ad" data-p="${p}" data-f="a" value="${esc(v)}" placeholder="${ph}"></div>`;
 const fi=(p,x,f,ph,c)=>`<input class="${c||'ad'}" data-p="${p}" data-f="${f}" value="${esc(x[f])}" placeholder="${ph}">`;
@@ -143,10 +143,11 @@ function elh(x,p,o){if(o)return `<div class="el" data-p="${p}">${lab(p,x.a,'%Q0.
  return `<div class="br">${x.rows.map((r,ri)=>`<div class="brr">${r.map((y,j)=>elh(y,p+'.'+ri+'.'+j)).join('')}<u class="fill"></u></div>`).join('')}</div>`}
 function ref(p){const a=p.split('.'),n=prog()[a[0]];if(!n)return{};if(a[1]=='o')return{n,arr:n.outs,i:+a[2],x:n.outs[a[2]],out:true};let arr=n.items,i=+a[2];if(a.length>3){const b=arr[i];if(!b||!b.rows)return{};arr=b.rows[a[3]];i=+a[4]}return{n,arr,i,x:arr&&arr[i],top:+a[2],row:a.length>3?+a[3]:-1}}
 function ed(){$('#net').innerHTML=prog().map((n,ni)=>`<div class="net"><div class="nh"><b>Segmento ${ni+1}</b><input data-f="c" data-p="${ni}" value="${esc(n.c)}" placeholder="Comentario"><button data-x="dn" data-p="${ni}">🗑</button></div><div class="lad"><i class="rail"></i><div class="ser">${n.items.map((x,i)=>elh(x,ni+'.i.'+i)).join('')}</div><u class="fill"></u><div class="br o">${n.outs.map((o,i)=>`<div class="brr">${elh(o,ni+'.o.'+i,1)}</div>`).join('')}</div></div></div>`).join('');mark()}
-const mark=()=>$$('#net .el').forEach(e=>e.classList.toggle('sel',e.dataset.p==sel));
+const mark=()=>{$$('#net .el').forEach(e=>e.classList.toggle('sel',e.dataset.p==sel));$$('#net .net').forEach((e,i)=>e.classList.toggle('nsel',i==selN))};
+function pick(e){const nb=e.target.closest('.net');if(nb)selN=[...nb.parentNode.children].indexOf(nb);const el=e.target.closest('.el');if(el)sel=el.dataset.p;else if(e.type=='click')sel=null;mark()}
 function commit(){const a=document.activeElement;if(a&&a.dataset&&a.dataset.f)a.dispatchEvent(new Event('change',{bubbles:true}))}
 function foc(){mark();const f=$(`#net .el[data-p="${sel}"] input`);if(f)f.focus()}
-function ins(t){commit();const P=prog();let n=P[P.length-1],r={};if(sel){r=ref(sel);if(r.n)n=r.n}const ni=P.indexOf(n);
+function ins(t){commit();const P=prog();let n=P[selN]||P[P.length-1],r={};if(sel){r=ref(sel);if(r.n)n=r.n}const ni=P.indexOf(n);selN=ni;
  if(['C','S','R','NEG'].includes(t)){n.outs.push({t,a:''});sel=ni+'.o.'+(n.outs.length-1)}
  else{const f=['TON','TOF','TP','CTU','CTD','CTUD'].includes(t),x=t=='CMP'?{k:'m',op:'>',x:'',y:''}:f?{k:'f',t,a:'',pt:'',pv:''}:{k:'c',t,a:''};
   if(f&&r.row>=0)return alert('Los bloques van en la línea principal, fuera de las ramas.');
@@ -160,11 +161,11 @@ function par(){commit();const P=prog(),r=sel?ref(sel):{};if(!r.x||r.out)return a
 function del(){commit();const r=sel?ref(sel):{};if(!r.x)return;r.arr.splice(r.i,1);if(r.row>=0){const n=r.n,b=n.items[r.top];if(!b.rows[r.row].length)b.rows.splice(r.row,1);if(b.rows.length==1)n.items.splice(r.top,1,...b.rows[0]);else if(!b.rows.length)n.items.splice(r.top,1)}sel=null;save();ed()}
 $('#tbar').innerHTML=[['NO','-| |-'],['NC','-|/|-'],['P','-|P|-'],['N','-|N|-'],['CMP','a&gt;b'],['PAR','Rama ∥'],['C','-( )-'],['S','-(S)-'],['R','-(R)-'],['NEG','-(/)-'],['TON','TON'],['TOF','TOF'],['TP','TP'],['CTU','CTU'],['CTD','CTD'],['CTUD','CTUD'],['DEL','🗑 Quitar'],['SEG','＋ Segmento']].map(b=>`<button data-t="${b[0]}">${b[1]}</button>`).join('');
 $('#tbar').addEventListener('mousedown',e=>e.preventDefault());
-$('#tbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t;if(t=='PAR')par();else if(t=='DEL')del();else if(t=='SEG'){prog().push(newNet());save();ed()}else ins(t)});
+$('#tbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.t;if(t=='PAR')par();else if(t=='DEL')del();else if(t=='SEG'){prog().push(newNet());selN=prog().length-1;sel=null;save();ed()}else ins(t)});
 const net=$('#net');
 net.addEventListener('change',e=>{const d=e.target.dataset,f=d.f;if(!f)return;if(String(d.p).indexOf('.')<0){prog()[d.p][f]=e.target.value;save();return}const r=ref(d.p);if(!r.x)return;const v=e.target.value;r.x[f]=v;if(r.x.k=='f'&&f=='a'){const l=e.target.closest('.bh').querySelector('.lv');l.dataset.n=v}else if(f!='op')e.target.classList.toggle('bad',!!v&&!res(v)&&isNaN(val(v)));save()});
-net.addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){const P=prog();P.splice(b.dataset.p,1);if(!P.length)P.push(newNet());sel=null;save();ed();return}const el=e.target.closest('.el');if(el){sel=el.dataset.p;mark()}});
-net.addEventListener('focusin',e=>{const el=e.target.closest('.el');if(el){sel=el.dataset.p;mark()}});
+net.addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){const P=prog();P.splice(b.dataset.p,1);if(!P.length)P.push(newNet());sel=null;save();ed();return}pick(e)});
+net.addEventListener('focusin',e=>{pick(e)});
 document.addEventListener('keydown',e=>{if(e.key=='Delete'&&sel&&!/INPUT|SELECT/.test(document.activeElement.tagName))del()});
 const AC=document.createElement('div');AC.id='ac';AC.hidden=true;document.body.appendChild(AC);let acE=null,acL=[],acH=-1;
 function opts(q){q=q.toLowerCase();const o=[];tags().forEach(t=>{if(t.n||t.a)o.push({v:t.n||t.a,d:t.a})});
@@ -191,14 +192,33 @@ $('#tgb').addEventListener('keydown',e=>{if(e.key!='Enter'||e.target.tagName!='I
 $('#tgb').addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){tags().splice(+b.closest('tr').dataset.i,1);save();tgr()}});
 $('#addt').onclick=addRow;
 $('#sug').onclick=()=>{const T=tags(),c=cur();c.io.concat(c.out.map(o=>({a:o[0],n:o[1],l:o[1]}))).forEach(i=>{if(!T.some(t=>norm(t.a)==i.a))T.push({n:(i.n||i.l).replace(/\W+/g,'_'),a:i.a,c:i.l})});save();tgr()};
-function mq(){const c=cur();$('#ctl').innerHTML='<hr><b>Entradas (cableado de la maqueta)</b>'+c.io.map(i=>`<div class="io">${i.k=='a'?`<span class="dot" data-i="${i.a}"></span>`:`<button data-i="${i.a}" data-k="${i.k}"${i.d?' class="on"':''}>${i.n}</button>`}<code>${i.a}</code>${i.l}</div>`).join('')+'<b>Salidas</b>'+c.out.map(o=>`<div class="io"><span class="dot q" data-q="${o[0]}"></span><code>${o[0]}</code>${o[1]}</div>`).join('')}
-const setIn=(b,down)=>{const a=b.dataset.i,k=b.dataset.k;if(k=='b'||k=='nc'){inp[a]=k=='b'?(down?1:0):(down?0:1);b.classList.toggle('on',down)}};
-$('#ctl').addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.k=='s'){inp[b.dataset.i]=inp[b.dataset.i]?0:1;b.classList.toggle('on',!!inp[b.dataset.i])}else setIn(b,true)});
-['pointerup','pointerleave'].forEach(t=>$('#ctl').addEventListener(t,e=>{const b=e.target.closest&&e.target.closest('button');if(b&&b.dataset.k!='s')setIn(b,false)},true));
+let ui=null,mc=null;
+function sv(i){const u=ui[i.a],v=u.m||u.t;inp[i.a]=i.k=='nc'?(v?0:1):(v?1:0)}
+function rin(keep){if(!keep||!ui)ui={};cur().io.forEach(i=>{if(i.k=='a')return;if(!ui[i.a])ui[i.a]={m:0,t:i.d?1:0};sv(i)})}
+function pst(s){const u=ui[s[1]];if(!u)return;u[s[0]=='p'?'m':'t']=s[2]?1:0;sv(cur().io.find(x=>x.a==s[1]))}
+function runMac(dt){if(!mc)return;if(mc.w>0){mc.w-=dt;return}while(mc.i<mc.s.length){const s=mc.s[mc.i++];if(s[0]=='w'){mc.w=s[1];return}pst(s)}mc=null}
+const pu=(n,ms)=>[['p',I(n),1],['w',ms||300],['p',I(n),0]],tg=(n,v)=>['t',I(n),v],W=ms=>['w',ms],rp=(a,k)=>Array(k).fill(a).flat(1);
+const big=[['p',I(5),1],['p',I(6),1],['p',I(7),1],W(400),['p',I(5),0],['p',I(6),0],['p',I(7),0]],small=[...pu(5),W(200),...pu(6),W(200),...pu(7)];
+const MAC={
+sem:[{n:'Coche carril 1',s:pu(1,1500)},{n:'Coche carril 2',s:pu(2,1500)}],
+tank:[1,2,3].flatMap(k=>[{n:'Vaciar T'+k,s:[tg(2*k+1,0),W(400),tg(2*k+2,0)]},{n:'Llenar T'+k,s:[tg(2*k+2,1),W(400),tg(2*k+1,1)]}]),
+plat:[{n:'Pieza en cinta 1',s:[tg(7,1)]},{n:'Quitar pieza cinta 1',s:[tg(7,0)]},{n:'Pieza en cinta 2',s:[tg(8,1)]},{n:'Quitar pieza cinta 2',s:[tg(8,0)]}],
+alm:[{n:'Entra 1 pieza',s:pu(3,150)},{n:'Sale 1 pieza',s:pu(4,150)},{n:'Entran 10',s:rp([...pu(3,150),W(150)],10)},{n:'Entran 30',s:rp([...pu(3,150),W(150)],30)}],
+oven:[{n:'Barrera cortada 2 s',s:[tg(4,1),W(2000),tg(4,0)]}],
+door:[{n:'Obstáculo 1 s',s:[tg(7,1),W(1000),tg(7,0)]},{n:'Modo auto',s:[tg(1,1),tg(2,0)]},{n:'Modo manual',s:[tg(2,1)]}],
+pump:[1,2,3,4].map(k=>({n:'Vaciar T'+k,s:[tg(2*k-1,0),W(300),tg(2*k,0)]})).concat([{n:'Llenar todos',s:[1,2,3,4,5,6,7,8].map(n=>tg(n,1))}]),
+dist:[{n:'Pieza grande',s:big},{n:'Pieza pequeña',s:small}],
+air:[{n:'Paso desde 1',s:[...pu(1),W(3000),...pu(5,500)]},{n:'Paso desde 2',s:[...pu(2),W(3000),...pu(6,500)]},{n:'Pulso S1',s:pu(1)},{n:'Pulso S2',s:pu(2)},{n:'Cruza B1',s:pu(5,500)},{n:'Cruza B2',s:pu(6,500)}],
+p3:[{n:'Pulsa 1 s',s:pu(1,1000)},{n:'Pulsa 6 s',s:pu(1,6000)}]};
+SC.find(s=>s.id=='dist').test=[W(300),['x',O(1),0,'Con el sistema parado, en A'],...pu(1),W(300),['x',O(1),0,'Tras S1 sigue en A'],...big,W(500),['x',O(1),0,'Pieza grande: se queda en A'],...small,W(400),['x',O(1),1,'Pieza pequeña: H1 pasa a B'],W(2000),['x',I(9),1,'Reed S9 indica posición B'],W(3500),['x',O(1),0,'Vuelve a A a los 5 s como máximo'],W(2500),...small,W(400),['x',O(1),1,'Otra pieza pequeña: H1 de nuevo'],...big,W(500),['x',O(1),0,'Pieza grande devuelve a A antes de 5 s']];
+function mq(){const c=cur();$('#ctl').innerHTML='<b>Acciones rápidas</b><div class="mac">'+(MAC[c.id]||[]).map((m,k)=>`<button data-mac="${k}">${m.n}</button>`).join('')+'</div><hr><b>Entradas</b> <small>⬤ pulsador · ⏻ interruptor (queda fijo)</small>'+c.io.map(i=>`<div class="io"><span class="dot" data-i="${i.a}"></span>${i.k=='a'?'':`<button data-i="${i.a}" data-k="m">⬤ ${i.n}</button><button data-i="${i.a}" data-k="t">⏻</button>`}<code>${i.a}</code>${i.k=='a'?i.n+' ':''}${i.l}</div>`).join('')+'<b>Salidas</b>'+c.out.map(o=>`<div class="io"><span class="dot q" data-q="${o[0]}"></span><code>${o[0]}</code>${o[1]}</div>`).join('')}
+function ub(b,f,v){const a=b.dataset.i;if(!ui[a])return;ui[a][f]=v;sv(cur().io.find(i=>i.a==a))}
+$('#ctl').addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.mac!=null){mc={s:MAC[cur().id][b.dataset.mac].s,i:0,w:0};return}if(!b.dataset.i)return;if(b.dataset.k=='t')ub(b,'t',ui[b.dataset.i].t?0:1);else{ub(b,'m',1);if(b.setPointerCapture)try{b.setPointerCapture(e.pointerId)}catch(x){}}});
+['pointerup','pointercancel','lostpointercapture'].forEach(t=>$('#ctl').addEventListener(t,e=>{const b=e.target.closest&&e.target.closest('button');if(b&&b.dataset.k=='m')ub(b,'m',0)},true));
 function en(){const c=cur();$('#tx').innerHTML='<div class="tt">'+c.txt+'</div>'+`<img class="ph" src="${c.id}.jpg" alt="Maqueta" onerror="this.remove()">`;$('#cps').innerHTML=c.comps.map((x,i)=>`<div class="io"><input type="checkbox" data-c="${i}"${S.cp[c.id+i]?' checked':''}> ${esc(x.t)} ${x.test?`<button data-t="${i}">Verificar</button>`:''}</div>`).join('')}
 $('#cps').addEventListener('click',e=>{const b=e.target.closest('button');if(b)startTest(cur().comps[b.dataset.t].test)});
 $('#cps').addEventListener('change',e=>{S.cp[cur().id+e.target.dataset.c]=e.target.checked;save()});
-function startTest(s){if(!start())return;tst={s,i:0,w:0,r:[],t0:sim}}
+function startTest(s){if(!start())return;rin();tst={s,i:0,w:0,r:[],t0:sim}}
 $('#bt').onclick=()=>cur().test?startTest(cur().test):($('#dgo').innerHTML='Esta maqueta aún no tiene prueba automática: compruébala con la maqueta y las luces.');
 $('#br').onclick=()=>{if(!run)start()};$('#bs').onclick=()=>{run=false;tst=null;mem={};tm={}};$('#bc').onclick=compile;
 $('#spd').onchange=()=>{};
@@ -206,16 +226,17 @@ function cfg(){const c=S.cfg;$('#kc').checked=!!c.clk;$('#ks').checked=!!c.sys;$
 ['kc','ks','cb','sb'].forEach(i=>$('#'+i).onchange=()=>{S.cfg={clk:$('#kc').checked,sys:$('#ks').checked,cb:+$('#cb').value||0,sb:+$('#sb').value||0};save();cfg()});
 $('#ws').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;const p=b.closest('.pn'),m=b.dataset.m;if(m=='c')p.classList.toggle('c');else if(m=='x'){p.classList.add('h');$(`[data-v="${p.id.slice(2)}"]`).checked=false}else if(m=='l'&&p.previousElementSibling)p.parentNode.insertBefore(p,p.previousElementSibling);else if(m=='r'&&p.nextElementSibling)p.parentNode.insertBefore(p.nextElementSibling,p)});
 $('#vw').addEventListener('change',e=>{const v=e.target.dataset.v,el=v=='crw'?$('#crw'):$('#p_'+v);v=='crw'?el.style.display=e.target.checked?'':'none':el.classList.toggle('h',!e.target.checked)});
-$('#sel').onchange=()=>{S.sc=+$('#sel').value;save();run=false;tst=null;reset();all()};
+$('#sel').onchange=()=>{S.sc=+$('#sel').value;save();run=false;tst=null;mc=null;ui=null;reset();all()};
 let cr=7200000,crun=0,clast=Date.now();try{const q=JSON.parse(localStorage.getItem('plc8cr')||'null');if(q){cr=q.cr;crun=q.crun;if(crun)cr-=Date.now()-q.t}}catch(e){}const fm=t=>{t=Math.max(0,Math.ceil(t/1000));return`${t/3600|0}:${String(t%3600/60|0).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`};
 $('#c1').onclick=()=>{crun=!crun;clast=Date.now()};$('#c0').onclick=()=>{cr=7200000;crun=0};
 function all(){ed();tgr();mq();en();cfg();$('#dgo').innerHTML=''}
-setInterval(()=>{const n=performance.now(),dt=Math.min(n-last,100)*(+$('#spd').value);last=n;if(run)scan(dt)},20);
+setInterval(()=>{const n=performance.now(),dt=Math.min(n-last,100)*(+$('#spd').value);last=n;runMac(dt);if(run)scan(dt)},20);
 setInterval(()=>{const P=prog();$('#st').textContent=run?'RUN':'STOP';$('#st').className=run?'r':'';
  $$('#net .el').forEach(e=>{const x=ref(e.dataset.p).x;if(!x)return;e.classList.toggle('li',!!(run&&x._i));e.classList.toggle('ro',!!(run&&x._v))});
  $$('#net .lad').forEach((l,i)=>{const n=P[i],f=l.querySelector(':scope>.fill');if(f)f.classList.toggle('ro',!!(run&&n&&n._r))});
  $$('#net .lv').forEach(e=>{const t=tm[e.dataset.n];e.textContent=t?(e.dataset.k=='T'?(t.e/1000).toFixed(1)+'s':t.cv):''});
  $$('#ctl .dot').forEach(e=>e.classList.toggle('on',!!(e.dataset.q?mem[e.dataset.q]:inp[e.dataset.i])));
+ $$('#ctl button[data-k]').forEach(b=>{const u=ui&&ui[b.dataset.i];if(u)b.classList.toggle('on',!!u[b.dataset.k])});
  $('#mqs').innerHTML=cur().draw(plant);
  if(crun){const t=Date.now();cr-=t-clast;clast=t}$('#cr').textContent=fm(cr);$('#cr').className=cr<=0?'z':''},60);
 setInterval(()=>{try{localStorage.setItem('plc8cr',JSON.stringify({cr,crun,t:Date.now()}))}catch(e){}},1000);
