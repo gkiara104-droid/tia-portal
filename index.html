@@ -76,7 +76,7 @@ mk('p3','Práctica 3 · Temporizadores','<b>Práctica 3 · Temporizadores y marc
  [bt(1,'Pulsador')],[[O(1),'Luz1'],[O(2),'Luz2'],[O(3),'RC','#e33'],[O(4),'AC','#fb0'],[O(5),'VC','#2d4'],[O(6),'RP','#e33'],[O(7),'VP','#2d4']],0,['Peatones: tiempos de 5 s de pulsador y verde mínimo editables con marcas.','Contador de peatones que han solicitado paso.'])];
 const newNet=()=>({c:'',items:[],outs:[]});
 let S={sc:0,p:{},t:{},cp:{},cfg:{clk:1,cb:100,sys:1,sb:1}};try{S=Object.assign(S,JSON.parse(localStorage.getItem('plc8')||'{}'))}catch(e){}
-const save=()=>{try{localStorage.setItem('plc8',JSON.stringify(S,(k,v)=>k[0]=='_'?undefined:v))}catch(e){}};
+const save=()=>{try{syncTags()}catch(e){}try{localStorage.setItem('plc8',JSON.stringify(S,(k,v)=>k[0]=='_'?undefined:v))}catch(e){}};
 const cur=()=>SC[S.sc],prog=()=>S.p[cur().id]||(S.p[cur().id]=[newNet()]),tags=()=>S.t[cur().id]||(S.t[cur().id]=[]);
 const PN=[['en','Enunciado y complicaciones',100],['ob','Main [OB1] · KOP',50],['gr','GRAFCET',48],['mq','Maqueta',40],['tg','Tabla de variables PLC',58],['dg','Diagnóstico y pruebas',40],['cf','CPU 1214C · marcas',40]];
 $('#ws').innerHTML=PN.map(([i,t,w])=>`<section class="pn" id="p_${i}" style="width:calc(${w}% - 8px)"><div class="hd"><b>${t}</b><span><button data-m="l">◀</button><button data-m="r">▶</button><button data-m="c">▾</button><button data-m="x">✕</button></span></div><div class="bd" id="b_${i}"></div></section>`).join('');
@@ -149,7 +149,7 @@ function commit(){const a=document.activeElement;if(a&&a.dataset&&a.dataset.f)a.
 function foc(){mark();const f=$(`#net .el[data-p="${sel}"] input`);if(f)f.focus()}
 function ins(t){commit();const P=prog();let n=P[selN]||P[P.length-1],r={};if(sel){r=ref(sel);if(r.n)n=r.n}const ni=P.indexOf(n);selN=ni;
  if(['C','S','R','NEG'].includes(t)){n.outs.push({t,a:''});sel=ni+'.o.'+(n.outs.length-1)}
- else{const f=['TON','TOF','TP','CTU','CTD','CTUD'].includes(t),x=t=='CMP'?{k:'m',op:'>',x:'',y:''}:f?{k:'f',t,a:'',pt:'',pv:''}:{k:'c',t,a:''};
+ else{const f=['TON','TOF','TP','CTU','CTD','CTUD'].includes(t),x=t=='CMP'?{k:'m',op:'>',x:'',y:''}:f?{k:'f',t,a:fbname(t),pt:'',pv:'',o2:fbaddr(t),id:Math.random().toString(36).slice(2,8)}:{k:'c',t,a:''};
   if(f&&r.row>=0)return alert('Los bloques van en la línea principal, fuera de las ramas.');
   if(r.row>=0){n.items[r.top].rows[r.row].splice(r.i+1,0,x);sel=`${ni}.i.${r.top}.${r.row}.${r.i+1}`}
   else{const at=r.x&&!r.out?r.top+1:n.items.length;n.items.splice(at,0,x);sel=`${ni}.i.${at}`}}
@@ -183,13 +183,25 @@ document.addEventListener('keydown',e=>{const el=e.target;if(!el.matches||!el.ma
  if(e.key=='Escape'){acHide();return}if(e.key!='Enter')return;e.preventDefault();const v=el.value.trim();
  if(open){const q=v.toLowerCase(),pick=acH>=0?acL[acH]:acL.find(o=>o.v.toLowerCase()==q||(o.d||'').toLowerCase()==q)||(acL.length==1?acL[0]:null);if(pick){acPick(pick);return}}
  acHide();el.dispatchEvent(new Event('change',{bubbles:true}));if(v&&(res(v)||!isNaN(val(v))))nextF(el);else el.classList.add('bad')});
+function FBs(){const o=[],w=a=>a.forEach(x=>{if(x.k=='b')x.rows.forEach(w);else if(x.k=='f')o.push(x)});prog().forEach(n=>w(n.items));return o}
+function fbname(t){const nm=new Set(FBs().map(x=>x.a));let n=1;while(nm.has(t+'_'+n))n++;return t+'_'+n}
+function fbaddr(t){const w=t[0]=='T'?4:2,u=new Set,add=a=>{const m=(a||'').match(/^%M([BWD]?)(\d+)/i);if(!m)return;const z={'':1,B:1,W:2,D:4}[m[1].toUpperCase()];for(let i=0;i<z;i++)u.add(+m[2]+i)};
+ tags().forEach(x=>add(x.a));FBs().forEach(x=>add(x.o2));const c=S.cfg;if(c.clk)add('%MB'+c.cb);if(c.sys)add('%MB'+c.sb);let b=10;while([...Array(w)].some((_,i)=>u.has(b+i)))b+=w;return (w==4?'%MD':'%MW')+b}
+function syncTags(){const T=tags(),c=S.cfg,F=FBs(),defs=[];let ch=false;
+ if(c.clk)['10Hz','5Hz','2_5Hz','2Hz','1_25Hz','1Hz','0_625Hz','0_5Hz'].forEach((n,i)=>defs.push({k:'c:clk'+i,n:'Clock_'+n,a:`%M${c.cb}.${i}`,c:'Marca de ciclo '+n.replace(/_/g,',')}));
+ if(c.sys)['FirstScan','DiagStatusUpdate','AlwaysTRUE','AlwaysFALSE'].forEach((n,i)=>defs.push({k:'c:sys'+i,n,a:`%M${c.sb}.${i}`,c:'Marca de sistema'+(i==0?' (primer ciclo)':'')}));
+ F.forEach(x=>{if(!x.id)x.id=Math.random().toString(36).slice(2,8);const a=norm(x.o2),T_=x.t[0]=='T';if(x.a&&NUM.test(a))defs.push({k:'f:'+x.id,n:x.a+(T_?'_ET':'_CV'),a,c:(T_?'Tiempo transcurrido de ':'Valor actual de ')+x.a,fb:x.a})});
+ defs.forEach(d=>{if((S.ns||{})[cur().id+d.k])return;const t=T.find(t=>t.src==d.k);if(!t){if(T.some(t=>norm(t.a)==d.a))return;T.push({n:d.n,a:d.a,y:'',c:d.c,src:d.k,fbn:d.fb});ch=true;return}
+  if(t.a!=d.a){t.a=d.a;ch=true}if(d.fb!=null&&t.fbn!=d.fb){t.n=d.n;t.c=d.c;t.fbn=d.fb;ch=true}});
+ for(let i=T.length;i--;){const q=T[i].src;if(q&&(q[0]=='c'?!defs.some(d=>d.k==q):!F.some(x=>'f:'+x.id==q))){T.splice(i,1);ch=true}}
+ if(ch)tgr();return ch}
 const TY=a=>/^%MD/i.test(a)?'Time':/^%MW/i.test(a)?'Int':'Bool';
 function nx(a){const m=(a||'').match(/^%?([IQM])([BWD]?)(\d+)(?:\.(\d))?$/i);if(!m)return '';const L=m[1].toUpperCase(),w=m[2].toUpperCase();let by=+m[3];if(w)return `%${L}${w}${by+{B:1,W:2,D:4}[w]}`;let b=+m[4]+1;if(b>7){b=0;by++}return `%${L}${by}.${b}`}
 function tgr(){$('#tgb').innerHTML=tags().map((t,i)=>`<tr data-i="${i}"><td><input data-f="n" value="${esc(t.n)}" placeholder="Nombre"><td><select data-f="y">${['Bool','Int','DInt','Time'].map(y=>`<option${y==(t.y||TY(t.a))?' selected':''}>${y}</option>`).join('')}</select><td><input data-f="a" value="${esc(t.a)}" placeholder="%I0.0"><td><input data-f="c" value="${esc(t.c)}"><td><button data-x="dt">×</button></tr>`).join('')}
 function addRow(){const T=tags(),l=T[T.length-1];T.push({n:'',a:(l&&nx(l.a))||'%I0.0',y:'',c:'',auto:true});save();tgr()}
 $('#tgb').addEventListener('change',e=>{const f=e.target.dataset.f;if(!f)return;const T=tags(),i=+e.target.closest('tr').dataset.i,t=T[i];let v=e.target.value;if(f=='a'){v=norm(v);e.target.value=v;if(v==t.a)return;t.a=v;t.auto=false;for(let j=i+1;j<T.length&&T[j].auto;j++)T[j].a=nx(T[j-1].a);if(T[i+1]&&T[i+1].auto)tgr()}else t[f]=v;save()});
 $('#tgb').addEventListener('keydown',e=>{if(e.key!='Enter'||e.target.tagName!='INPUT')return;e.preventDefault();const rows=$$('#tgb tr'),i=rows.indexOf(e.target.closest('tr')),c=[...rows[i].querySelectorAll('input')].indexOf(e.target);e.target.dispatchEvent(new Event('change',{bubbles:true}));if(i>=tags().length-1)addRow();const r=$$('#tgb tr')[i+1];if(r)r.querySelectorAll('input')[c].focus()});
-$('#tgb').addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){tags().splice(+b.closest('tr').dataset.i,1);save();tgr()}});
+$('#tgb').addEventListener('click',e=>{const b=e.target.closest('[data-x]');if(b){const i=+b.closest('tr').dataset.i,t=tags()[i];if(t&&t.src)(S.ns=S.ns||{})[cur().id+t.src]=1;tags().splice(i,1);save();tgr()}});
 $('#addt').onclick=addRow;
 $('#sug').onclick=()=>{const T=tags(),c=cur();c.io.concat(c.out.map(o=>({a:o[0],n:o[1],l:o[1]}))).forEach(i=>{if(!T.some(t=>norm(t.a)==i.a))T.push({n:(i.n||i.l).replace(/\W+/g,'_'),a:i.a,c:i.l})});save();tgr()};
 let ui=null,mc=null;
@@ -229,7 +241,7 @@ $('#vw').addEventListener('change',e=>{const v=e.target.dataset.v,el=v=='crw'?$(
 $('#sel').onchange=()=>{S.sc=+$('#sel').value;save();run=false;tst=null;mc=null;ui=null;reset();all()};
 let cr=7200000,crun=0,clast=Date.now();try{const q=JSON.parse(localStorage.getItem('plc8cr')||'null');if(q){cr=q.cr;crun=q.crun;if(crun)cr-=Date.now()-q.t}}catch(e){}const fm=t=>{t=Math.max(0,Math.ceil(t/1000));return`${t/3600|0}:${String(t%3600/60|0).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`};
 $('#c1').onclick=()=>{crun=!crun;clast=Date.now()};$('#c0').onclick=()=>{cr=7200000;crun=0};
-function all(){gr();ed();tgr();mq();en();cfg();$('#dgo').innerHTML=''}
+function all(){gr();ed();syncTags();tgr();mq();en();cfg();$('#dgo').innerHTML=''}
 setInterval(()=>{const n=performance.now(),dt=Math.min(n-last,100)*(+$('#spd').value);last=n;runMac(dt);if(run)scan(dt)},20);
 setInterval(()=>{const P=prog();$('#st').textContent=run?'RUN':'STOP';$('#st').className=run?'r':'';
  $$('#net .el').forEach(e=>{const x=ref(e.dataset.p).x;if(!x)return;e.classList.toggle('li',!!(run&&x._i));e.classList.toggle('ro',!!(run&&x._v))});
